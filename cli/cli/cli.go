@@ -235,16 +235,12 @@ func (curveadm *CurveAdm) NewPromptError(err error, prompt string) utils.PromptE
 }
 
 func (curveadm *CurveAdm) Audit(now time.Time, args []string, execErr *error) {
-	if len(args) > 0 && args[0] == "audit" {
+	if len(args) > 0 && args[0] == "audit" && args[0] == "__complete" {
 		return
 	}
 
-	succ := true
-	if *execErr != nil {
-		succ = false
-	}
 	command := fmt.Sprintf("curveadm %s", strings.Join(args, " "))
-	err := curveadm.Storage().InsertAuditLog(now, command, succ)
+	err := curveadm.Storage().InsertAuditLog(now, command)
 	if err != nil {
 		log.Error("InsertAuditLog", log.Field("error", err))
 	}

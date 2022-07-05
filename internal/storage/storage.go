@@ -52,7 +52,7 @@ type AuditLog struct {
 	Id          int
 	Command     string
 	ExecuteTime time.Time
-	Success     bool
+	Status      int
 }
 
 type Playground struct {
@@ -261,8 +261,8 @@ func (s *Storage) SetContainId(serviceId, containerId string) error {
 }
 
 // audit
-func (s *Storage) InsertAuditLog(time time.Time, command string, success bool) error {
-	return s.execSQL(INSERT_AUDIT_LOG, time, command, success)
+func (s *Storage) InsertAuditLog(time time.Time, command string) (error) {
+	return s.execSQL(INSERT_AUDIT_LOG, time, command)
 }
 
 func (s *Storage) getAuditLogs(query string, args ...interface{}) ([]AuditLog, error) {
@@ -277,7 +277,7 @@ func (s *Storage) getAuditLogs(query string, args ...interface{}) ([]AuditLog, e
 	auditLogs := []AuditLog{}
 	var auditLog AuditLog
 	for rows.Next() {
-		err = rows.Scan(&auditLog.Id, &auditLog.ExecuteTime, &auditLog.Command, &auditLog.Success)
+		err = rows.Scan(&auditLog.Id, &auditLog.ExecuteTime, &auditLog.Command, &auditLog.Status)
 		if err != nil {
 			return nil, err
 		}

@@ -29,7 +29,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type auditOptions struct{}
+type auditOptions struct {
+	tail int
+}
 
 func NewAuditCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	var options auditOptions
@@ -44,6 +46,9 @@ func NewAuditCommand(curveadm *cli.CurveAdm) *cobra.Command {
 		DisableFlagsInUseLine: true,
 	}
 
+	flags := cmd.Flags()
+	flags.IntVarP(&options.tail, "tail", "n", 20, "Number of lines to show from the end of the logs (0 means all)")
+
 	return cmd
 }
 
@@ -53,6 +58,10 @@ func runAudit(curveadm *cli.CurveAdm, options auditOptions) error {
 		return err
 	}
 
+	tail := options.tail
+	if tail != 0 && tail > 0 && tail < len(auditLogs) {
+		auditLogs = auditLogs[len(auditLogs)-tail:]
+	}
 	output := tui.FormatAuditLogs(auditLogs)
 	curveadm.WriteOut(output)
 	return nil

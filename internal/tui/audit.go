@@ -31,20 +31,23 @@ import (
 )
 
 const (
-	RESULT_SUCCESS = "success"
-	RESULT_FAIL    = "fail"
+	RESULT_ABORT   = "ABORT"
+	RESULT_SUCCESS = "SUCCESS"
+	RESULT_FAIL    = "FAIL"
 )
 
 func resultDecorate(message string) string {
 	if message == RESULT_SUCCESS {
 		return color.GreenString(message)
+	} else if message == RESULT_FAIL {
+		return color.RedString(message)
 	}
-	return color.RedString(message)
+	return message
 }
 
 func FormatAuditLogs(auditLogs []storage.AuditLog) string {
 	lines := [][]interface{}{}
-	title := []string{"Id", "Execute Time", "Command", "Result"}
+	title := []string{"Id", "Result", "Execute Time", "Command"}
 	first, second := tuicommon.FormatTitle(title)
 	lines = append(lines, first)
 	lines = append(lines, second)
@@ -52,15 +55,20 @@ func FormatAuditLogs(auditLogs []storage.AuditLog) string {
 	for i := 0; i < len(auditLogs); i++ {
 		line := []interface{}{}
 		auditLog := auditLogs[i]
+		// id
 		line = append(line, strconv.Itoa(auditLog.Id))
-		line = append(line, auditLog.ExecuteTime.Format("2006-01-02 15:04:05"))
-		line = append(line, auditLog.Command)
-
-		result := RESULT_SUCCESS
-		if !auditLog.Success {
+		// result
+		result := RESULT_ABORT
+		if auditLog.Status == 0 {
+			result = RESULT_SUCCESS
+		} else if auditLog.Status == 1 {
 			result = RESULT_FAIL
 		}
 		line = append(line, tuicommon.DecorateMessage{Message: result, Decorate: resultDecorate})
+		// execute time
+		line = append(line, auditLog.ExecuteTime.Format("2006-01-02 15:04:05"))
+		// command
+		line = append(line, auditLog.Command)
 
 		lines = append(lines, line)
 	}

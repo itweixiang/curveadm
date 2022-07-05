@@ -38,7 +38,7 @@
 package storage
 
 var (
-	// tables (clusters/containers/audit)
+	// tables (clusters/containers/audit/playground)
 	CREATE_CLUSTERS_TABLE = `
 		CREATE TABLE IF NOT EXISTS clusters (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,7 +66,7 @@ var (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
             execute_time DATE NOT NULL,
 			command TEXT NOT NULL,
-			success INTEGER DEFAULT 0
+			status INTEGER DEFAULT -1
 		)
     `
 
@@ -128,7 +128,9 @@ var (
 	SET_CONTAINER_ID = `UPDATE containers SET container_id = ? WHERE id = ?`
 
 	// audit
-	INSERT_AUDIT_LOG = `INSERT INTO audit(execute_time, command, success) VALUES(?, ?, ?)`
+	INSERT_AUDIT_LOG = `INSERT INTO audit(execute_time, command) VALUES(?, ?)`
+
+	SET_AUDIT_LOG_STATUS = `UPDATE audit SET status = ? WHERE id = ?`
 
 	SELECT_AUDIT_LOG = `SELECT * FROM audit`
 

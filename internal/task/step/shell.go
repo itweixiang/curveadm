@@ -92,6 +92,16 @@ type (
 		ExecSudoAlias string
 	}
 
+	ListBlockDevice struct {
+		Device        []string
+		Format        string
+		NoHeadings    bool
+		Out           *string
+		ExecWithSudo  bool
+		ExecInLocal   bool
+		ExecSudoAlias string
+	}
+
 	ShellCommand struct {
 		Command       string
 		Out           *string
@@ -210,6 +220,28 @@ func (s *ShowDiskFree) Execute(ctx *context.Context) error {
 	cmd := ctx.Module().Shell().DiskFree(s.Files...)
 	if len(s.Format) > 0 {
 		cmd.AddOption("--output=%s", s.Format)
+	}
+
+	out, err := cmd.Execute(module.ExecOption{
+		ExecWithSudo:  s.ExecWithSudo,
+		ExecInLocal:   s.ExecInLocal,
+		ExecSudoAlias: s.ExecSudoAlias,
+	})
+	if err != nil {
+		return err
+	}
+
+	*s.Out = strings.TrimSuffix(out, "\n")
+	return nil
+}
+
+func (s *ListBlockDevice) Execute(ctx *context.Context) error {
+	cmd := ctx.Module().Shell().LsBlk(s.Device...)
+	if len(s.Format) > 0 {
+		cmd.AddOption("--output=%s", s.Format)
+	}
+	if s.NoHeadings {
+		cmd.AddOption("--noheadings")
 	}
 
 	out, err := cmd.Execute(module.ExecOption{

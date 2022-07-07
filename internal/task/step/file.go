@@ -64,9 +64,11 @@ type (
 
 	Mutate func(string, string, string) (string, error)
 
+
 	Filter struct {
 		KVFieldSplit string
 		Mutate       Mutate
+		Append       string
 		Input        *string
 		Output       *string
 	}
@@ -221,6 +223,9 @@ func (s *Filter) Execute(ctx *context.Context) error {
 		output = append(output, out)
 	}
 
+	if len(s.Append) > 0 {
+		output = append(output, s.Append)
+	}
 	*s.Output = strings.Join(output, "\n")
 	return nil
 }

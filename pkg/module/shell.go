@@ -47,6 +47,7 @@ const (
 	TEMPLATE_DISKFREE    = "df {{.options}} {{.files}}"
 	TEMPLATE_FUSER       = "fuser {{.options}} {{.names}}"
 	TEMPLATE_MODPROBE    = "modprobe {{.options}} {{.modulename}} {{.arguments}}"
+	TEMPLATE_LSBLK       = "lsblk {{.options}} {{.devices}}"
 	TEMPLATE_COMMAND     = "bash -c '{{.command}}'"
 	TEMPLATE_EXEC_SCEIPT = "{{.scriptPath}} {{.arguments}}"
 )
@@ -139,6 +140,12 @@ func (s *Shell) ModProbe(modulename string, args ...string) *Shell {
 	s.tmpl = template.Must(template.New("ModProbe").Parse(TEMPLATE_MODPROBE))
 	s.data["modulename"] = modulename
 	s.data["arguments"] = strings.Join(args, " ")
+	return s
+}
+
+func (s *Shell) LsBlk(device ...string) *Shell {
+	s.tmpl = template.Must(template.New("lsBlk").Parse(TEMPLATE_LSBLK))
+	s.data["devices"] = strings.Join(device, " ")
 	return s
 }
 

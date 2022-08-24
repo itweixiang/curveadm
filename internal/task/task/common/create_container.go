@@ -26,6 +26,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/opencurve/curveadm/internal/utils"
 	"strings"
 
 	"github.com/opencurve/curveadm/cli/cli"
@@ -123,7 +124,7 @@ func getArguments(dc *topology.DeployConfig) string {
 		"walFilePoolMetaPath":   fmt.Sprintf("%s/walfilepool.meta", dataDir),
 		"copySetUri":            fmt.Sprintf("local://%s/copysets", dataDir),
 		"recycleUri":            fmt.Sprintf("local://%s/recycler", dataDir),
-		"raftLogUri":            fmt.Sprintf("curve://%s/copysets", dataDir),
+		"raftLogUri":            fmt.Sprintf("curve://%s/%s", dataDir, utils.Choose(len(dc.GetWALDir()) > 0, "wal", "copysets")),
 		"raftSnapshotUri":       fmt.Sprintf("curve://%s/copysets", dataDir),
 		"chunkServerStoreUri":   fmt.Sprintf("local://%s", dataDir),
 		"chunkServerMetaUri":    fmt.Sprintf("local://%s/chunkserver.dat", dataDir),
@@ -162,6 +163,7 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 	layout := dc.GetProjectLayout()
 	logDir := dc.GetLogDir()
 	dataDir := dc.GetDataDir()
+	walDir := dc.GetWALDir()
 	coreDir := dc.GetCoreDir()
 
 	if len(logDir) > 0 {
@@ -175,6 +177,13 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		volumes = append(volumes, step.Volume{
 			HostPath:      dataDir,
 			ContainerPath: layout.ServiceDataDir,
+		})
+	}
+
+	if len(walDir) > 0 {
+		volumes = append(volumes, step.Volume{
+			HostPath:      walDir,
+			ContainerPath: layout.ServiceWALDir,
 		})
 	}
 
